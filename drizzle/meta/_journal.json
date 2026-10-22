@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792374274362,
+      "tag": "0000_organic_jocasta",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792440498414,
+      "tag": "0001_petite_shadowcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792483774130,
+      "tag": "0002_lucky_chamber",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792538344399,
+      "tag": "0003_equal_micromacro",
+      "breakpoints": true
+    }
+  ]
+}
