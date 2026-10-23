@@ -33,19 +33,7 @@ export class GamesService {
     dto: StartGameDto,
   ): Promise<GameDetail> {
     return this.db.transaction(async (tx) => {
-      const [playerCount] = await tx
-        .select({ total: count() })
-        .from(teamMembers)
-        .where(
-          and(
-            eq(teamMembers.teamId, teamId),
-            inArray(teamMembers.userId, dto.playerIds),
-          ),
-        );
-
-      if (playerCount.total !== dto.playerIds.length) {
-        throw new BadRequestException('All players must be on the team');
-      }
+      await this.assertOnTeam(tx, teamId, dto.playerIds);
 
       const [inserted] = await tx
         .insert(games)
@@ -233,6 +221,32 @@ export class GamesService {
     });
   }
 
+  async addPlayers(
+    teamId: string,
+    gameId: string,
+    playerIds: string[],
+  ): Promise<GameDetail> {
+    // Ended games accept players too: offline, "end" can sync before this does.
+    return this.db.transaction(async (tx) => {
+      const [game] = await tx
+        .select({ id: games.id })
+        .from(games)
+        .where(and(eq(games.id, gameId), eq(games.teamId, teamId)));
+      if (!game) throw new NotFoundException('Game not found');
+
+      await this.assertOnTeam(tx, teamId, playerIds);
+
+      await tx
+        .insert(gamePlayers)
+        .values(playerIds.map((playerId) => ({ gameId, userId: playerId })))
+        .onConflictDoNothing();
+
+      const detail = await this.findGame(tx, teamId, gameId);
+      if (!detail) throw new Error('Game missing right after insert');
+      return detail;
+    });
+  }
+
   private async findGame(
     db: Database | Transaction,
     teamId: string,
@@ -272,5 +286,25 @@ export class GamesService {
       .orderBy(gameEvents.at, gameEvents.id);
 
     return { ...game, players, events };
+  }
+
+  private async assertOnTeam(
+    tx: Transaction,
+    teamId: string,
+    playerIds: string[],
+  ): Promise<void> {
+    const [{ total }] = await tx
+      .select({ total: count() })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.teamId, teamId),
+          inArray(teamMembers.userId, playerIds),
+        ),
+      );
+
+    if (total !== playerIds.length) {
+      throw new BadRequestException('All players must be on the team');
+    }
   }
 }

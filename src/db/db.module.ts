@@ -16,10 +16,13 @@ export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
       provide: DRIZZLE,
       inject: [ConfigService],
       useFactory: (config: ConfigService<EnvironmentVariables, true>) => {
-      const pool = new Pool({
-        connectionString: config.get('DATABASE_URL', { infer: true }),
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-      });
+        const pool = new Pool({
+          connectionString: config.get('DATABASE_URL', { infer: true }),
+          ssl:
+            process.env.NODE_ENV === 'production'
+              ? { rejectUnauthorized: false }
+              : undefined,
+        });
         return drizzle({ client: pool, schema });
       },
     },

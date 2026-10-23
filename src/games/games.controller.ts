@@ -16,6 +16,7 @@ import { StartGameDto } from './dto/start-game.dto';
 import type { GameDetail, RecordEventsResult, GameListItem } from './game';
 import { EndGameDto } from './dto/end-game.dto';
 import { RecordEventsDto } from './dto/record-event.dto';
+import { AddPlayersDto } from './dto/add-players.dto';
 
 @Controller('teams/:teamId/games')
 export class GamesController {
@@ -83,6 +84,21 @@ export class GamesController {
       membership.teamId,
       gameId,
       body.events,
+    );
+  }
+
+  @Post(':gameId/players')
+  @RequirePermission('game:manage')
+  @HttpCode(200)
+  async addPlayers(
+    @CurrentMembership() membership: TeamMembership,
+    @Param('gameId', ParseUUIDPipe) gameId: string,
+    @Body() body: AddPlayersDto,
+  ): Promise<GameDetail> {
+    return this.gamesService.addPlayers(
+      membership.teamId,
+      gameId,
+      body.playerIds,
     );
   }
 }

@@ -5,7 +5,10 @@ import { Pool } from 'pg';
 async function main() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    ssl:
+      process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : undefined,
   });
   try {
     await migrate(drizzle({ client: pool }), { migrationsFolder: './drizzle' });
