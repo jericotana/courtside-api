@@ -26,4 +26,9 @@ export class SignUpDto {
   @MinLength(8)
   @MaxLength(128)
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2048)
+  turnstileToken: string;
 }

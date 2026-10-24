@@ -9,6 +9,7 @@ import { REFRESH_TOKEN_STORE } from './refresh-tokens/refresh-token.store';
 import { InMemoryRefreshTokenStore } from './refresh-tokens/in-memory-refresh-token.store';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { TurnstileService } from './turnstile.service';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
   controllers: [AuthController],
   providers: [
     AuthService,
+    TurnstileService,
     { provide: REFRESH_TOKEN_STORE, useClass: InMemoryRefreshTokenStore },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],

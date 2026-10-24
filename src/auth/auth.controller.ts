@@ -5,10 +5,14 @@ import { SignInDto } from './dto/sign-in.dto';
 import type { Request, Response } from 'express';
 import { AuthResponse } from './auth';
 import { Public } from './public.decorator';
+import { TurnstileService } from './turnstile.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly turnstile: TurnstileService,
+  ) {}
 
   @Post('sign-up')
   @Public()
@@ -16,6 +20,7 @@ export class AuthController {
     @Body() body: SignUpDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
+    await this.turnstile.verify(body.turnstileToken);
     const { refreshToken, ...result } = await this.authService.signUp(body);
     this.setRefreshCookie(res, refreshToken);
     return result;
@@ -28,6 +33,7 @@ export class AuthController {
     @Body() body: SignInDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
+    await this.turnstile.verify(body.turnstileToken);
     const { refreshToken, ...result } = await this.authService.signIn(body);
     this.setRefreshCookie(res, refreshToken);
     return result;

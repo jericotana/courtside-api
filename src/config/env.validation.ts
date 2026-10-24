@@ -29,6 +29,10 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   @MinLength(32)
   JWT_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  TURNSTILE_SECRET_KEY: string;
 }
 
 export function validate(
