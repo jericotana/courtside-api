@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './config/env.validation';
 import cookieParser from 'cookie-parser';
+import type { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,11 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
+
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  });
   await app.listen(config.get('PORT', { infer: true }));
 }
 void bootstrap();
